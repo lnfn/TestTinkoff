@@ -4,6 +4,7 @@ import android.os.Bundle
 import com.arellomobile.mvp.presenter.ProvidePresenter
 import com.eugenetereshkov.testtinkoff.R
 import com.eugenetereshkov.testtinkoff.presenter.main.MainPresenter
+import com.eugenetereshkov.testtinkoff.ui.depositionpointscontainer.DepositionPointsContainerFragment
 import com.eugenetereshkov.testtinkoff.ui.global.BaseActivity
 import dagger.android.AndroidInjection
 import javax.inject.Inject
@@ -23,6 +24,10 @@ class MainActivity : BaseActivity() {
         AndroidInjection.inject(this)
         super.onCreate(savedInstanceState)
 
-        presenter.test()
+        if (savedInstanceState == null) {
+            supportFragmentManager.beginTransaction()
+                    .add(R.id.container, DepositionPointsContainerFragment.newInstance(), DepositionPointsContainerFragment.TAG)
+                    .commitNow()
+        }
     }
 }

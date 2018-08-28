@@ -1,4 +1,4 @@
-package com.eugenetereshkov.testtinkoff.di.module
+package com.eugenetereshkov.testtinkoff.ui.main
 
 import com.eugenetereshkov.testtinkoff.di.scope.FragmentScoped
 import com.eugenetereshkov.testtinkoff.ui.depositionpointsdetails.DepositionPointsDetailsFragment
