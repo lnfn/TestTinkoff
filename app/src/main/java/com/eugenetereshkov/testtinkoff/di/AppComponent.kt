@@ -4,15 +4,15 @@ import com.eugenetereshkov.testtinkoff.App
 import com.eugenetereshkov.testtinkoff.di.module.ActivityBindingModule
 import com.eugenetereshkov.testtinkoff.di.module.AppModule
 import dagger.Component
-import dagger.android.AndroidInjectionModule
 import dagger.android.AndroidInjector
+import dagger.android.support.AndroidSupportInjectionModule
 import javax.inject.Singleton
 
 
 @Singleton
 @Component(
         modules = [
-            AndroidInjectionModule::class,
+            AndroidSupportInjectionModule::class,
             AppModule::class,
             ActivityBindingModule::class
         ]

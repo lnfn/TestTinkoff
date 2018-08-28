@@ -4,6 +4,7 @@ package com.eugenetereshkov.testtinkoff
 import com.eugenetereshkov.testtinkoff.di.DaggerAppComponent
 import dagger.android.AndroidInjector
 import dagger.android.DaggerApplication
+
 import timber.log.Timber
 
 

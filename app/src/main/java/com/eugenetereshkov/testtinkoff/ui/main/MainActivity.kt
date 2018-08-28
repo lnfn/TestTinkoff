@@ -1,19 +1,24 @@
 package com.eugenetereshkov.testtinkoff.ui.main
 
 import android.os.Bundle
+import android.support.v4.app.Fragment
 import com.arellomobile.mvp.presenter.ProvidePresenter
 import com.eugenetereshkov.testtinkoff.R
 import com.eugenetereshkov.testtinkoff.presenter.main.MainPresenter
 import com.eugenetereshkov.testtinkoff.ui.depositionpointscontainer.DepositionPointsContainerFragment
 import com.eugenetereshkov.testtinkoff.ui.global.BaseActivity
 import dagger.android.AndroidInjection
+import dagger.android.AndroidInjector
+import dagger.android.DispatchingAndroidInjector
+import dagger.android.support.HasSupportFragmentInjector
 import javax.inject.Inject
 
 
-class MainActivity : BaseActivity() {
-
+class MainActivity : BaseActivity(), HasSupportFragmentInjector {
     override val idResLayout: Int = R.layout.activity_main
 
+    @Inject
+    lateinit var fragmentInjector: DispatchingAndroidInjector<Fragment>
     @Inject
     lateinit var presenter: MainPresenter
 
@@ -26,8 +31,14 @@ class MainActivity : BaseActivity() {
 
         if (savedInstanceState == null) {
             supportFragmentManager.beginTransaction()
-                    .add(R.id.container, DepositionPointsContainerFragment.newInstance(), DepositionPointsContainerFragment.TAG)
+                    .add(
+                            R.id.container,
+                            DepositionPointsContainerFragment.newInstance(),
+                            DepositionPointsContainerFragment.TAG
+                    )
                     .commitNow()
         }
     }
+
+    override fun supportFragmentInjector(): AndroidInjector<Fragment> = fragmentInjector
 }
