@@ -1,6 +1,7 @@
 package com.eugenetereshkov.testtinkoff.model.system
 
 import android.content.Context
+import android.support.annotation.StringRes
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -9,5 +10,5 @@ import javax.inject.Singleton
 class ResourceManager @Inject constructor(
         private val context: Context
 ) {
-    fun getString(id: Int) = context.getString(id)
+    fun getString(@StringRes id: Int) = context.getString(id)
 }

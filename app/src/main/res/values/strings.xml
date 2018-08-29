@@ -2,4 +2,7 @@
     <string name="app_name">TestTinkoff</string>
     <string name="on_map">На карте</string>
     <string name="list">Список</string>
+    <string name="settings">Настройки</string>
+    <string name="open_Settings">Перейти в настройки</string>
+    <string name="update_location">Обновление местоположения…</string>
 </resources>

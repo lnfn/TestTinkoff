@@ -2,6 +2,7 @@ package com.eugenetereshkov.testtinkoff.ui.depositionpointscontainer
 
 
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentManager
@@ -63,6 +64,14 @@ class DepositionPointsContainerFragment : BaseFragment(), DepositionPointsContai
     }
 
     override fun supportFragmentInjector(): AndroidInjector<Fragment> = fragmentInjector
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        for (childFragment in childFragmentManager.fragments) {
+            childFragment.onActivityResult(requestCode, resultCode, data)
+        }
+    }
 
     private inner class ViewPagerAdapter(fm: FragmentManager) : FragmentPagerAdapter(fm) {
 
