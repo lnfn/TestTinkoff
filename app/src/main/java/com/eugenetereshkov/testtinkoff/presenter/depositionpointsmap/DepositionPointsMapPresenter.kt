@@ -4,20 +4,31 @@ import android.location.Location
 import android.location.LocationManager
 import com.arellomobile.mvp.InjectViewState
 import com.arellomobile.mvp.MvpPresenter
+import com.eugenetereshkov.testtinkoff.extension.bindTo
 import com.eugenetereshkov.testtinkoff.model.data.location.LocationProvider
 import com.eugenetereshkov.testtinkoff.model.data.location.OnClientListener
 import com.eugenetereshkov.testtinkoff.model.data.location.OnLocationUpdatingListener
+import com.eugenetereshkov.testtinkoff.model.repository.IDepositionPointsRepository
 import com.eugenetereshkov.testtinkoff.ui.depositionpointsmap.DepositionPointsMapFragment
+import io.reactivex.disposables.CompositeDisposable
+import timber.log.Timber
 import javax.inject.Inject
 
 
 @InjectViewState
 class DepositionPointsMapPresenter @Inject constructor(
-        private val locationProvider: LocationProvider
+        private val locationProvider: LocationProvider,
+        private val depositionPointsRepository: IDepositionPointsRepository
 ) : MvpPresenter<DepositionPointsMapView>(), OnLocationUpdatingListener {
 
     private var isSecondNeverUsedPermission: Boolean = false
     private var location: Location? = null
+    private val disposable = CompositeDisposable()
+
+    override fun onDestroy() {
+        disposable.clear()
+        super.onDestroy()
+    }
 
     override fun setComplete(isUpdating: Boolean) {
 
@@ -43,6 +54,24 @@ class DepositionPointsMapPresenter @Inject constructor(
                 },
                 DepositionPointsMapFragment.DEFAULT_ZOOM
         )
+
+        depositionPointsRepository.getDepositionPoints(
+                latitude = 55.751244,
+                longitude = 37.618423,
+                radius = 1000
+        )
+                .subscribe(
+                        { Timber.d(it.toString()) },
+                        { Timber.e(it) }
+                )
+                .bindTo(disposable)
+
+        depositionPointsRepository.getDepositionPartners()
+                .subscribe(
+                        { Timber.d(it.toString()) },
+                        { Timber.e(it) }
+                )
+                .bindTo(disposable)
     }
 
     fun onGpsPermissionError() {

@@ -7,11 +7,7 @@ import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentManager
 import android.support.v4.app.FragmentPagerAdapter
-import android.widget.Toast
-import com.arellomobile.mvp.presenter.ProvidePresenter
 import com.eugenetereshkov.testtinkoff.R
-import com.eugenetereshkov.testtinkoff.presenter.depositionpointscontainer.DepositionPointsContainerPresenter
-import com.eugenetereshkov.testtinkoff.presenter.depositionpointscontainer.DepositionPointsContainerView
 import com.eugenetereshkov.testtinkoff.ui.depositionpointslist.DepositionPointsListFragment
 import com.eugenetereshkov.testtinkoff.ui.depositionpointsmap.DepositionPointsMapFragment
 import com.eugenetereshkov.testtinkoff.ui.global.BaseFragment
@@ -23,7 +19,7 @@ import kotlinx.android.synthetic.main.fragment_deposition_points_container.*
 import javax.inject.Inject
 
 
-class DepositionPointsContainerFragment : BaseFragment(), DepositionPointsContainerView,
+class DepositionPointsContainerFragment : BaseFragment(),
         HasSupportFragmentInjector {
 
     companion object {
@@ -36,11 +32,6 @@ class DepositionPointsContainerFragment : BaseFragment(), DepositionPointsContai
 
     @Inject
     lateinit var fragmentInjector: DispatchingAndroidInjector<Fragment>
-    @Inject
-    lateinit var presenter: DepositionPointsContainerPresenter
-
-    @ProvidePresenter
-    fun providePresenter() = presenter
 
     private val adapter by lazy { ViewPagerAdapter(childFragmentManager) }
 
@@ -55,12 +46,6 @@ class DepositionPointsContainerFragment : BaseFragment(), DepositionPointsContai
         toolbar.title = getString(R.string.app_name)
         viewPager.adapter = adapter
         tabLayout.setupWithViewPager(viewPager)
-
-        Toast.makeText(
-                requireContext(),
-                "DepositionPointsContainerFragment ${presenter.value}",
-                Toast.LENGTH_SHORT
-        ).show()
     }
 
     override fun supportFragmentInjector(): AndroidInjector<Fragment> = fragmentInjector

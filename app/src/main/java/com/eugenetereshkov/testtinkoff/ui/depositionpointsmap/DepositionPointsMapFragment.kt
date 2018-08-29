@@ -12,8 +12,6 @@ import com.arellomobile.mvp.presenter.InjectPresenter
 import com.arellomobile.mvp.presenter.ProvidePresenter
 import com.eugenetereshkov.testtinkoff.R
 import com.eugenetereshkov.testtinkoff.extension.showSettingsRequest
-import com.eugenetereshkov.testtinkoff.presenter.depositionpointscontainer.DepositionPointsContainerPresenter
-import com.eugenetereshkov.testtinkoff.presenter.depositionpointscontainer.DepositionPointsContainerView
 import com.eugenetereshkov.testtinkoff.presenter.depositionpointsmap.DepositionPointsMapPresenter
 import com.eugenetereshkov.testtinkoff.presenter.depositionpointsmap.DepositionPointsMapView
 import com.eugenetereshkov.testtinkoff.ui.global.BaseFragment
@@ -32,8 +30,7 @@ import javax.inject.Inject
 
 
 @RuntimePermissions
-class DepositionPointsMapFragment : BaseFragment(), OnMapReadyCallback, DepositionPointsMapView,
-        DepositionPointsContainerView {
+class DepositionPointsMapFragment : BaseFragment(), OnMapReadyCallback, DepositionPointsMapView {
 
     companion object {
         const val TAG = "deposition_points_map_fragment"
@@ -45,18 +42,12 @@ class DepositionPointsMapFragment : BaseFragment(), OnMapReadyCallback, Depositi
 
     override val idResLayout: Int = R.layout.fragment_deposition_points_map
 
-    @Inject
-    @InjectPresenter
-    lateinit var presenter: DepositionPointsContainerPresenter
     @InjectPresenter
     @Inject
-    lateinit var mapPresenter: DepositionPointsMapPresenter
+    lateinit var presenter: DepositionPointsMapPresenter
 
     @ProvidePresenter
     fun providePresenter() = presenter
-
-    @ProvidePresenter
-    fun providerMapPresenter() = mapPresenter
 
     private lateinit var googleMap: GoogleMap
     private val locationDelaySnackbar by lazy {
@@ -91,24 +82,24 @@ class DepositionPointsMapFragment : BaseFragment(), OnMapReadyCallback, Depositi
     override fun onStart() {
         super.onStart()
 
-        mapPresenter.onStart()
+        presenter.onStart()
     }
 
     override fun onResume() {
         super.onResume()
 
-        mapPresenter.onResume()
+        presenter.onResume()
     }
 
     override fun onPause() {
         super.onPause()
 
-        mapPresenter.onPause()
+        presenter.onPause()
     }
 
     override fun onMapReady(map: GoogleMap) {
         googleMap = map
-        mapPresenter.onMapReady()
+        presenter.onMapReady()
     }
 
     override fun showLastLocation(location: Location) {
@@ -147,17 +138,17 @@ class DepositionPointsMapFragment : BaseFragment(), OnMapReadyCallback, Depositi
 
     @NeedsPermission(Manifest.permission.ACCESS_FINE_LOCATION)
     fun findCurrentLocation() {
-        mapPresenter.setPermissionsGranted()
+        presenter.setPermissionsGranted()
     }
 
     @OnPermissionDenied(Manifest.permission.ACCESS_FINE_LOCATION)
     fun onDeniedLocationPermission() {
-        mapPresenter.deniedLocationPermission()
+        presenter.deniedLocationPermission()
     }
 
     @OnNeverAskAgain(Manifest.permission.ACCESS_FINE_LOCATION)
     fun onNeverUsedLocationPermission() {
-        mapPresenter.neverUsedLocationPermission()
+        presenter.neverUsedLocationPermission()
     }
 
     override fun onRequestPermissionsResult(
@@ -171,8 +162,8 @@ class DepositionPointsMapFragment : BaseFragment(), OnMapReadyCallback, Depositi
         when (requestCode) {
             // Check for the integer request code originally supplied to startResolutionForResult().
             REQUEST_CHECK_SETTINGS -> when (resultCode) {
-                Activity.RESULT_OK -> mapPresenter.setPermissionsGranted()
-                Activity.RESULT_CANCELED -> mapPresenter.onGpsPermissionError()
+                Activity.RESULT_OK -> presenter.setPermissionsGranted()
+                Activity.RESULT_CANCELED -> presenter.onGpsPermissionError()
             }
         }
     }
