@@ -11,6 +11,9 @@ import android.view.View
 import com.arellomobile.mvp.presenter.InjectPresenter
 import com.arellomobile.mvp.presenter.ProvidePresenter
 import com.eugenetereshkov.testtinkoff.R
+import com.eugenetereshkov.testtinkoff.entity.DepositionPoint
+import com.eugenetereshkov.testtinkoff.entity.DepositionPointClusterItem
+import com.eugenetereshkov.testtinkoff.extension.getMapVisibleRadius
 import com.eugenetereshkov.testtinkoff.extension.showSettingsRequest
 import com.eugenetereshkov.testtinkoff.presenter.depositionpointsmap.DepositionPointsMapPresenter
 import com.eugenetereshkov.testtinkoff.presenter.depositionpointsmap.DepositionPointsMapView
@@ -20,6 +23,7 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
+import com.google.maps.android.clustering.ClusterManager
 import dagger.android.support.AndroidSupportInjection
 import kotlinx.android.synthetic.main.fragment_deposition_points_map.*
 import permissions.dispatcher.NeedsPermission
@@ -40,6 +44,12 @@ class DepositionPointsMapFragment : BaseFragment(), OnMapReadyCallback, Depositi
         fun newInstance() = DepositionPointsMapFragment()
     }
 
+    data class TargetMapPosition(
+            val latitude: Double,
+            val longitude: Double,
+            val radius: Int
+    )
+
     override val idResLayout: Int = R.layout.fragment_deposition_points_map
 
     @InjectPresenter
@@ -50,6 +60,37 @@ class DepositionPointsMapFragment : BaseFragment(), OnMapReadyCallback, Depositi
     fun providePresenter() = presenter
 
     private lateinit var googleMap: GoogleMap
+    private val cameraIdleListener: () -> Unit = {
+        val currentLatLang = googleMap.cameraPosition.target
+        presenter.getDepositionPoints(
+                latitude = currentLatLang.latitude,
+                longitude = currentLatLang.longitude,
+                mapVisibleRadius = googleMap.getMapVisibleRadius().toInt()
+        )
+    }
+    private val clusterClickListener by lazy {
+        ClusterManager.OnClusterClickListener<DepositionPointClusterItem> { cluster ->
+            val currentZoom = googleMap.cameraPosition.zoom
+
+            if (currentZoom < googleMap.maxZoomLevel) {
+                val zoom = currentZoom + 1f
+                googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(cluster.position, zoom))
+            }
+            true
+        }
+    }
+    private val clusterItemClickListener by lazy {
+        ClusterManager.OnClusterItemClickListener<DepositionPointClusterItem> { clusterItem ->
+            true
+        }
+    }
+    private val clusterManager by lazy {
+        MapClusterManager<DepositionPointClusterItem>(requireContext(), googleMap, cameraIdleListener).apply {
+            renderer = DepositionPointMarkerRender(requireContext(), googleMap, this)
+            setOnClusterClickListener(clusterClickListener)
+            setOnClusterItemClickListener(clusterItemClickListener)
+        }
+    }
     private val locationDelaySnackbar by lazy {
         Snackbar.make(root, getText(R.string.update_location), Snackbar.LENGTH_INDEFINITE)
     }
@@ -100,6 +141,11 @@ class DepositionPointsMapFragment : BaseFragment(), OnMapReadyCallback, Depositi
     override fun onMapReady(map: GoogleMap) {
         googleMap = map
         presenter.onMapReady()
+
+        googleMap.apply {
+            setOnMarkerClickListener(clusterManager)
+            setOnCameraIdleListener(clusterManager)
+        }
     }
 
     override fun showLastLocation(location: Location) {
@@ -108,6 +154,19 @@ class DepositionPointsMapFragment : BaseFragment(), OnMapReadyCallback, Depositi
                         LatLng(location.latitude, location.longitude), DEFAULT_ZOOM
                 )
         )
+    }
+
+    override fun showMarkers(data: List<DepositionPoint>) {
+        val clusterItems = data.map { depositionPoint ->
+            DepositionPointClusterItem(
+                    latitude = depositionPoint.location.latitude,
+                    longitude = depositionPoint.location.longitude,
+                    name = depositionPoint.partnerName)
+        }
+
+        clusterManager.clearItems()
+        clusterManager.addItems(clusterItems)
+        clusterManager.cluster()
     }
 
     override fun openGpsSettings() {

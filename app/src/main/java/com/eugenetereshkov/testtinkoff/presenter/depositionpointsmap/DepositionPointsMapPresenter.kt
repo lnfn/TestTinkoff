@@ -21,9 +21,22 @@ class DepositionPointsMapPresenter @Inject constructor(
         private val depositionPointsRepository: IDepositionPointsRepository
 ) : MvpPresenter<DepositionPointsMapView>(), OnLocationUpdatingListener {
 
+    private var isFirstLocationRequest = true
     private var isSecondNeverUsedPermission: Boolean = false
-    private var location: Location? = null
+    private var location: Location = Location(LocationManager.GPS_PROVIDER).apply {
+        latitude = 55.751244
+        longitude = 37.618423
+    }
     private val disposable = CompositeDisposable()
+
+    override fun onFirstViewAttach() {
+        depositionPointsRepository.source
+                .subscribe(
+                        { viewState.showMarkers(it) },
+                        { Timber.e(it) }
+                )
+                .bindTo(disposable)
+    }
 
     override fun onDestroy() {
         disposable.clear()
@@ -32,6 +45,16 @@ class DepositionPointsMapPresenter @Inject constructor(
 
     override fun setComplete(isUpdating: Boolean) {
 
+    }
+
+    fun getDepositionPoints(latitude: Double, longitude: Double, mapVisibleRadius: Int) {
+        depositionPointsRepository.request.onNext(
+                DepositionPointsMapFragment.TargetMapPosition(latitude = latitude,
+                        longitude = longitude,
+                        radius = mapVisibleRadius
+
+                )
+        )
     }
 
     fun onStart() {
@@ -48,25 +71,11 @@ class DepositionPointsMapPresenter @Inject constructor(
 
     fun onMapReady() {
         viewState.moveCameraToUserLocation(
-                Location(LocationManager.GPS_PROVIDER).apply {
-                    latitude = 55.751244
-                    longitude = 37.618423
-                },
+                location,
                 DepositionPointsMapFragment.DEFAULT_ZOOM
         )
 
-        depositionPointsRepository.getDepositionPoints(
-                latitude = 55.751244,
-                longitude = 37.618423,
-                radius = 1000
-        )
-                .subscribe(
-                        { Timber.d(it.toString()) },
-                        { Timber.e(it) }
-                )
-                .bindTo(disposable)
-
-        depositionPointsRepository.getDepositionPartners()
+        depositionPointsRepository.source
                 .subscribe(
                         { Timber.d(it.toString()) },
                         { Timber.e(it) }
@@ -83,7 +92,10 @@ class DepositionPointsMapPresenter @Inject constructor(
         locationProvider.isPermissionsGranted = true
         locationProvider.updateLastUserLocation()
         locationProvider.startLocationUpdates(this)
-        location?.let { viewState.moveCameraToUserLocation(it) }
+
+        if (!isFirstLocationRequest) {
+            viewState.moveCameraToUserLocation(location)
+        }
     }
 
     fun deniedLocationPermission() {
@@ -117,7 +129,8 @@ class DepositionPointsMapPresenter @Inject constructor(
     private fun onUpdatedUserLocation(location: Location) {
         viewState.hideLocationDelay()
 
-        if (this@DepositionPointsMapPresenter.location == null) {
+        if (isFirstLocationRequest) {
+            isFirstLocationRequest = false
             viewState.moveCameraToUserLocation(location)
         }
 
