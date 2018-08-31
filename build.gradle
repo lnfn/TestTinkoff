@@ -9,6 +9,7 @@ buildscript {
         permissionDispatcherVersion = '3.3.1'
         playServicesVersion = '15.0.1'
         retrofitVersion = '2.4.0'
+        ormliteVersion = '5.1'
     }
     repositories {
         google()

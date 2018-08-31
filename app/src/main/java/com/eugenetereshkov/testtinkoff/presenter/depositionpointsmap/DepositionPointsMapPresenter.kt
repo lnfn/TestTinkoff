@@ -4,6 +4,9 @@ import android.location.Location
 import android.location.LocationManager
 import com.arellomobile.mvp.InjectViewState
 import com.arellomobile.mvp.MvpPresenter
+import com.eugenetereshkov.testtinkoff.entity.DepositionPoint
+import com.eugenetereshkov.testtinkoff.entity.DepositionPointClusterItem
+import com.eugenetereshkov.testtinkoff.entity.TargetMapPosition
 import com.eugenetereshkov.testtinkoff.extension.bindTo
 import com.eugenetereshkov.testtinkoff.model.data.location.LocationProvider
 import com.eugenetereshkov.testtinkoff.model.data.location.OnClientListener
@@ -29,15 +32,6 @@ class DepositionPointsMapPresenter @Inject constructor(
     }
     private val disposable = CompositeDisposable()
 
-    override fun onFirstViewAttach() {
-        depositionPointsRepository.source
-                .subscribe(
-                        { viewState.showMarkers(it) },
-                        { Timber.e(it) }
-                )
-                .bindTo(disposable)
-    }
-
     override fun onDestroy() {
         disposable.clear()
         super.onDestroy()
@@ -49,7 +43,7 @@ class DepositionPointsMapPresenter @Inject constructor(
 
     fun getDepositionPoints(latitude: Double, longitude: Double, mapVisibleRadius: Int) {
         depositionPointsRepository.request.onNext(
-                DepositionPointsMapFragment.TargetMapPosition(latitude = latitude,
+                TargetMapPosition(latitude = latitude,
                         longitude = longitude,
                         radius = mapVisibleRadius
 
@@ -75,9 +69,9 @@ class DepositionPointsMapPresenter @Inject constructor(
                 DepositionPointsMapFragment.DEFAULT_ZOOM
         )
 
-        depositionPointsRepository.source
+        depositionPointsRepository.sourceObservable
                 .subscribe(
-                        { Timber.d(it.toString()) },
+                        { viewState.showMarkers(it.map(this::convertToClusterItem)) },
                         { Timber.e(it) }
                 )
                 .bindTo(disposable)
@@ -109,6 +103,12 @@ class DepositionPointsMapPresenter @Inject constructor(
             isSecondNeverUsedPermission = true
         }
     }
+
+    private fun convertToClusterItem(item: DepositionPoint) = DepositionPointClusterItem(
+            latitude = item.location.latitude,
+            longitude = item.location.longitude,
+            name = item.partnerName
+    )
 
     private fun initLocationProvider() {
         locationProvider.setOnUpdateUserLocationListener(object : OnClientListener {

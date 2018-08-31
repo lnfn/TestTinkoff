@@ -5,7 +5,7 @@ import com.arellomobile.mvp.MvpView
 import com.arellomobile.mvp.viewstate.strategy.AddToEndSingleStrategy
 import com.arellomobile.mvp.viewstate.strategy.OneExecutionStateStrategy
 import com.arellomobile.mvp.viewstate.strategy.StateStrategyType
-import com.eugenetereshkov.testtinkoff.entity.DepositionPoint
+import com.eugenetereshkov.testtinkoff.entity.DepositionPointClusterItem
 
 
 @StateStrategyType(AddToEndSingleStrategy::class)
@@ -23,5 +23,5 @@ interface DepositionPointsMapView : MvpView {
     fun hideLocationDelay()
 
     fun showLastLocation(location: Location)
-    fun showMarkers(markers: List<DepositionPoint>)
+    fun showMarkers(markers: List<DepositionPointClusterItem>)
 }

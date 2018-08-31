@@ -11,7 +11,6 @@ import android.view.View
 import com.arellomobile.mvp.presenter.InjectPresenter
 import com.arellomobile.mvp.presenter.ProvidePresenter
 import com.eugenetereshkov.testtinkoff.R
-import com.eugenetereshkov.testtinkoff.entity.DepositionPoint
 import com.eugenetereshkov.testtinkoff.entity.DepositionPointClusterItem
 import com.eugenetereshkov.testtinkoff.extension.getMapVisibleRadius
 import com.eugenetereshkov.testtinkoff.extension.showSettingsRequest
@@ -43,12 +42,6 @@ class DepositionPointsMapFragment : BaseFragment(), OnMapReadyCallback, Depositi
 
         fun newInstance() = DepositionPointsMapFragment()
     }
-
-    data class TargetMapPosition(
-            val latitude: Double,
-            val longitude: Double,
-            val radius: Int
-    )
 
     override val idResLayout: Int = R.layout.fragment_deposition_points_map
 
@@ -156,16 +149,9 @@ class DepositionPointsMapFragment : BaseFragment(), OnMapReadyCallback, Depositi
         )
     }
 
-    override fun showMarkers(data: List<DepositionPoint>) {
-        val clusterItems = data.map { depositionPoint ->
-            DepositionPointClusterItem(
-                    latitude = depositionPoint.location.latitude,
-                    longitude = depositionPoint.location.longitude,
-                    name = depositionPoint.partnerName)
-        }
-
+    override fun showMarkers(data: List<DepositionPointClusterItem>) {
         clusterManager.clearItems()
-        clusterManager.addItems(clusterItems)
+        clusterManager.addItems(data)
         clusterManager.cluster()
     }
 

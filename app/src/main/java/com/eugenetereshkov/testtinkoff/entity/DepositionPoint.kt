@@ -1,11 +1,24 @@
 package com.eugenetereshkov.testtinkoff.entity
 
+import com.eugenetereshkov.testtinkoff.model.data.db.LocationPersister
+import com.j256.ormlite.field.DatabaseField
+import com.j256.ormlite.table.DatabaseTable
 
-data class DepositionPoint(
-        val externalId: String,
-        val partnerName: String,
-        val location: Location,
-        val addressInfo: String,
-        val fullAddress: String,
-        val verificationInfo: String
-)
+
+@DatabaseTable(tableName = "deposition_points")
+class DepositionPoint {
+    @DatabaseField(generatedId = true)
+    val id: Int = 0
+    @DatabaseField
+    val externalId: String = ""
+    @DatabaseField
+    val partnerName: String = ""
+    @DatabaseField(persisterClass = LocationPersister::class)
+    val location: Location = Location(0.0, 0.0)
+    @DatabaseField
+    val addressInfo: String = ""
+    @DatabaseField
+    val fullAddress: String = ""
+    @DatabaseField
+    val verificationInfo: String = ""
+}

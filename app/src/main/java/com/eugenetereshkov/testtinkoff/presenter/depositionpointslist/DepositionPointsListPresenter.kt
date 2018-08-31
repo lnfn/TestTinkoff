@@ -17,7 +17,7 @@ class DepositionPointsListPresenter @Inject constructor(
     private val disposable = CompositeDisposable()
 
     override fun onFirstViewAttach() {
-        depositionPointsRepository.source
+        depositionPointsRepository.sourceObservable
                 .subscribe(
                         { viewState.showCountItems(it.size) },
                         { Timber.e(it) }
