@@ -7,6 +7,7 @@ import com.eugenetereshkov.testtinkoff.model.data.db.DepositionPartnerDao
 import com.eugenetereshkov.testtinkoff.model.data.db.DepositionPartnerEntity
 import com.eugenetereshkov.testtinkoff.model.data.db.DepositionPointDao
 import com.eugenetereshkov.testtinkoff.model.data.db.HelperFactory
+import com.eugenetereshkov.testtinkoff.model.system.AppPreferences
 import dagger.Module
 import dagger.Provides
 import javax.inject.Singleton
@@ -20,6 +21,11 @@ class AppModule {
     @Singleton
     @Provides
     fun provideContext(application: App): Context = application.applicationContext
+
+    @Singleton
+    @Provides
+    fun provideSharedPreferences(context: Context) =
+            AppPreferences(context.getSharedPreferences(AppPreferences.APP_PREFERENCES, Context.MODE_PRIVATE))
 
     @Singleton
     @Provides

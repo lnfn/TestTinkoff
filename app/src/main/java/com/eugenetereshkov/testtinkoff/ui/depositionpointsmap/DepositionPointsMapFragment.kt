@@ -12,6 +12,7 @@ import com.arellomobile.mvp.presenter.InjectPresenter
 import com.arellomobile.mvp.presenter.ProvidePresenter
 import com.eugenetereshkov.testtinkoff.R
 import com.eugenetereshkov.testtinkoff.entity.DepositionPointClusterItem
+import com.eugenetereshkov.testtinkoff.entity.TargetMapPosition
 import com.eugenetereshkov.testtinkoff.extension.getMapVisibleRadius
 import com.eugenetereshkov.testtinkoff.extension.showSettingsRequest
 import com.eugenetereshkov.testtinkoff.presenter.depositionpointsmap.DepositionPointsMapPresenter
@@ -55,11 +56,14 @@ class DepositionPointsMapFragment : BaseFragment(), OnMapReadyCallback, Depositi
     private lateinit var googleMap: GoogleMap
     private val cameraIdleListener: () -> Unit = {
         val currentLatLang = googleMap.cameraPosition.target
-        presenter.getDepositionPoints(
+        val targetMapPosition = TargetMapPosition(
                 latitude = currentLatLang.latitude,
                 longitude = currentLatLang.longitude,
-                mapVisibleRadius = googleMap.getMapVisibleRadius().toInt()
+                radius = googleMap.getMapVisibleRadius().toInt(),
+                zoom = googleMap.cameraPosition.zoom
+
         )
+        presenter.getDepositionPoints(targetMapPosition)
     }
     private val clusterClickListener by lazy {
         ClusterManager.OnClusterClickListener<DepositionPointClusterItem> { cluster ->

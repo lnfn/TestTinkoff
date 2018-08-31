@@ -12,7 +12,7 @@ import com.eugenetereshkov.testtinkoff.model.data.location.LocationProvider
 import com.eugenetereshkov.testtinkoff.model.data.location.OnClientListener
 import com.eugenetereshkov.testtinkoff.model.data.location.OnLocationUpdatingListener
 import com.eugenetereshkov.testtinkoff.model.repository.IDepositionPointsRepository
-import com.eugenetereshkov.testtinkoff.ui.depositionpointsmap.DepositionPointsMapFragment
+import com.eugenetereshkov.testtinkoff.model.system.AppPreferences
 import io.reactivex.disposables.CompositeDisposable
 import timber.log.Timber
 import javax.inject.Inject
@@ -21,14 +21,15 @@ import javax.inject.Inject
 @InjectViewState
 class DepositionPointsMapPresenter @Inject constructor(
         private val locationProvider: LocationProvider,
-        private val depositionPointsRepository: IDepositionPointsRepository
+        private val depositionPointsRepository: IDepositionPointsRepository,
+        private val appPreferences: AppPreferences
 ) : MvpPresenter<DepositionPointsMapView>(), OnLocationUpdatingListener {
 
     private var isFirstLocationRequest = true
     private var isSecondNeverUsedPermission: Boolean = false
     private var location: Location = Location(LocationManager.GPS_PROVIDER).apply {
-        latitude = 55.751244
-        longitude = 37.618423
+        latitude = appPreferences.lastMapPosition.latitude
+        longitude = appPreferences.lastMapPosition.longitude
     }
     private val disposable = CompositeDisposable()
 
@@ -41,14 +42,8 @@ class DepositionPointsMapPresenter @Inject constructor(
 
     }
 
-    fun getDepositionPoints(latitude: Double, longitude: Double, mapVisibleRadius: Int) {
-        depositionPointsRepository.request.onNext(
-                TargetMapPosition(latitude = latitude,
-                        longitude = longitude,
-                        radius = mapVisibleRadius
-
-                )
-        )
+    fun getDepositionPoints(targetMapPosition: TargetMapPosition) {
+        depositionPointsRepository.request.onNext(targetMapPosition)
     }
 
     fun onStart() {
@@ -66,7 +61,7 @@ class DepositionPointsMapPresenter @Inject constructor(
     fun onMapReady() {
         viewState.moveCameraToUserLocation(
                 location,
-                DepositionPointsMapFragment.DEFAULT_ZOOM
+                appPreferences.lastMapPosition.zoom
         )
 
         depositionPointsRepository.sourceObservable
