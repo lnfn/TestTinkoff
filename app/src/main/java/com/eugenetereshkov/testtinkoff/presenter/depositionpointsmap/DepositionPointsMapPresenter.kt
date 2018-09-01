@@ -4,7 +4,7 @@ import android.location.Location
 import android.location.LocationManager
 import com.arellomobile.mvp.InjectViewState
 import com.arellomobile.mvp.MvpPresenter
-import com.eugenetereshkov.testtinkoff.entity.DepositionPoint
+import com.eugenetereshkov.testtinkoff.entity.DepositionPointAndPartner
 import com.eugenetereshkov.testtinkoff.entity.DepositionPointClusterItem
 import com.eugenetereshkov.testtinkoff.entity.TargetMapPosition
 import com.eugenetereshkov.testtinkoff.extension.bindTo
@@ -99,10 +99,10 @@ class DepositionPointsMapPresenter @Inject constructor(
         }
     }
 
-    private fun convertToClusterItem(item: DepositionPoint) = DepositionPointClusterItem(
+    private fun convertToClusterItem(item: DepositionPointAndPartner) = DepositionPointClusterItem(
             latitude = item.location.latitude,
             longitude = item.location.longitude,
-            name = item.partnerName
+            name = item.name
     )
 
     private fun initLocationProvider() {

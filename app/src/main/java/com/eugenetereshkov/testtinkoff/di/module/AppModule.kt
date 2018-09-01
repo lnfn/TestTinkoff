@@ -3,11 +3,10 @@ package com.eugenetereshkov.testtinkoff.di.module
 import android.content.Context
 import com.eugenetereshkov.testtinkoff.App
 import com.eugenetereshkov.testtinkoff.entity.DepositionPoint
-import com.eugenetereshkov.testtinkoff.model.data.db.DepositionPartnerDao
 import com.eugenetereshkov.testtinkoff.model.data.db.DepositionPartnerEntity
-import com.eugenetereshkov.testtinkoff.model.data.db.DepositionPointDao
 import com.eugenetereshkov.testtinkoff.model.data.db.HelperFactory
 import com.eugenetereshkov.testtinkoff.model.system.AppPreferences
+import com.j256.ormlite.dao.Dao
 import dagger.Module
 import dagger.Provides
 import javax.inject.Singleton
@@ -31,11 +30,13 @@ class AppModule {
     @Provides
     fun provideHelperFactory(context: Context) = HelperFactory(context)
 
+    @Singleton
     @Provides
-    fun provideDepositionPintDao(helperFactory: HelperFactory) =
-            DepositionPointDao(helperFactory.databaseHelper.getDao(DepositionPoint::class.java))
+    fun providePointDao(helperFactory: HelperFactory): Dao<DepositionPoint, Int> =
+            helperFactory.databaseHelper.getDao(DepositionPoint::class.java)
 
+    @Singleton
     @Provides
-    fun provideDepositionPartnerDao(helperFactory: HelperFactory) =
-            DepositionPartnerDao(helperFactory.databaseHelper.getDao(DepositionPartnerEntity::class.java))
+    fun providePartnerDao(helperFactory: HelperFactory): Dao<DepositionPartnerEntity, Int> =
+            helperFactory.databaseHelper.getDao(DepositionPartnerEntity::class.java)
 }

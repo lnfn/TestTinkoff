@@ -4,16 +4,17 @@ import com.eugenetereshkov.testtinkoff.entity.DepositionPoint
 import com.j256.ormlite.dao.Dao
 import com.j256.ormlite.table.TableUtils
 import javax.inject.Inject
+import javax.inject.Singleton
 
 
+@Singleton
 class DepositionPointDao @Inject constructor(
-        private val dao: Dao<DepositionPoint, Int>
+        private val pointDao: Dao<DepositionPoint, Int>
 ) {
-
     fun refresh(list: List<DepositionPoint>): Int {
-        TableUtils.clearTable(dao.connectionSource, DepositionPoint::class.java)
-        return dao.create(list)
+        TableUtils.clearTable(pointDao.connectionSource, DepositionPoint::class.java)
+        return pointDao.create(list)
     }
 
-    fun getAll(): List<DepositionPoint> = dao.queryForAll()
+    fun getAll(): List<DepositionPoint> = pointDao.queryForAll()
 }

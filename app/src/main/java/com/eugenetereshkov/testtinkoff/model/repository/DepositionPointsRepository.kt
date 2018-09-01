@@ -3,10 +3,12 @@ package com.eugenetereshkov.testtinkoff.model.repository
 import com.eugenetereshkov.testtinkoff.entity.DepositionPartner
 import com.eugenetereshkov.testtinkoff.entity.DepositionPartnersResponse
 import com.eugenetereshkov.testtinkoff.entity.DepositionPoint
+import com.eugenetereshkov.testtinkoff.entity.DepositionPointAndPartner
 import com.eugenetereshkov.testtinkoff.entity.DepositionPointsResponse
 import com.eugenetereshkov.testtinkoff.entity.TargetMapPosition
 import com.eugenetereshkov.testtinkoff.model.data.api.TinkoffApi
 import com.eugenetereshkov.testtinkoff.model.data.db.DepositionPartnerDao
+import com.eugenetereshkov.testtinkoff.model.data.db.DepositionPartnerEntity
 import com.eugenetereshkov.testtinkoff.model.data.db.DepositionPointDao
 import com.eugenetereshkov.testtinkoff.model.system.AppPreferences
 import com.eugenetereshkov.testtinkoff.model.system.SchedulersProvider
@@ -21,7 +23,7 @@ import javax.inject.Singleton
 
 
 interface IDepositionPointsRepository {
-    val sourceObservable: Observable<List<DepositionPoint>>
+    val sourceObservable: Observable<List<DepositionPointAndPartner>>
     val request: PublishSubject<TargetMapPosition>
 }
 
@@ -38,16 +40,16 @@ class DepositionPointsRepository @Inject constructor(
         const val TIME_TO_UPDATE = 10
     }
 
-    private val source = BehaviorSubject.create<List<DepositionPoint>>()
+    private val source = BehaviorSubject.create<List<DepositionPointAndPartner>>()
 
     override val request = PublishSubject.create<TargetMapPosition>()
-    override val sourceObservable: Observable<List<DepositionPoint>> = source.hide()
+    override val sourceObservable: Observable<List<DepositionPointAndPartner>> = source.hide()
 
     init {
         request.hide()
                 .debounce(300, TimeUnit.MILLISECONDS)
-                .switchMap(this::getDepositionPointsAndPartners)
-                .flatMap { getDepositionPointsFromDb().toObservable() }
+                .switchMap(this::getDepositionPointsAndPartnersObservable)
+                .flatMap { getJoinDepositionPintsAndPartnerObservable() }
                 .observeOn(appSchedulers.ui())
                 .subscribe(source)
     }
@@ -56,11 +58,11 @@ class DepositionPointsRepository @Inject constructor(
 
     private fun isDifferentLastMapPosition(value: TargetMapPosition) = appPreferences.lastMapPosition != value
 
-    private fun getDepositionPointsAndPartners(position: TargetMapPosition): Observable<Unit> {
+    private fun getDepositionPointsAndPartnersObservable(position: TargetMapPosition): Observable<Unit> {
         return Observable.defer {
             Observable.zip(
-                    if (getDifferentTimeLastUpdatePartners() >= TIME_TO_UPDATE) refreshDepositionPartnersDB().toObservable() else Observable.just(0),
-                    if (isDifferentLastMapPosition(position)) refreshDepositionPointsDB(position).toObservable() else Observable.just(0),
+                    if (getDifferentTimeLastUpdatePartners() >= TIME_TO_UPDATE) refreshDepositionPartnersDBSingle().toObservable() else Observable.just(0),
+                    if (isDifferentLastMapPosition(position)) refreshDepositionPointsDBSingle(position).toObservable() else Observable.just(0),
                     BiFunction<Int, Int, Unit> { _, _ ->
                         appPreferences.lastMapPosition = position
                         Unit
@@ -69,14 +71,24 @@ class DepositionPointsRepository @Inject constructor(
         }
     }
 
-    private fun refreshDepositionPointsDB(position: TargetMapPosition): Single<Int> {
-        return getDepositionPointsFromNetwork(position)
+    private fun getJoinDepositionPintsAndPartnerObservable(): Observable<List<DepositionPointAndPartner>> {
+        return Observable.zip(
+                getDepositionPointsFromDbSingle().toObservable(),
+                getDepositionPartnersFromDBSingle().toObservable(),
+                BiFunction<List<DepositionPoint>, List<DepositionPartnerEntity>, List<DepositionPointAndPartner>> { points, partners ->
+                    DepositionPointAndPartner.joinDepositionPointsAndPartners(points, partners)
+                }
+        )
+    }
+
+    private fun refreshDepositionPointsDBSingle(position: TargetMapPosition): Single<Int> {
+        return getDepositionPointsFromNetworkSingle(position)
                 .map { it.payload }
                 .map { depositionPointDao.refresh(it) }
     }
 
-    private fun refreshDepositionPartnersDB(): Single<Int> {
-        return getDepositionPartnersFromNetwork()
+    private fun refreshDepositionPartnersDBSingle(): Single<Int> {
+        return getDepositionPartnersFromNetworkSingle()
                 .map { it.payload }
                 .map { partners ->
                     partners.map { DepositionPartner.convertToDepositionPartnerEntity(it) }
@@ -85,7 +97,7 @@ class DepositionPointsRepository @Inject constructor(
                 .doOnEvent { _, _ -> appPreferences.lastTimeUpdateDepositionPartners = System.currentTimeMillis() }
     }
 
-    private fun getDepositionPointsFromNetwork(
+    private fun getDepositionPointsFromNetworkSingle(
             targetMapPosition: TargetMapPosition
     ): Single<DepositionPointsResponse> {
         return api.getDepositionPoints(
@@ -97,14 +109,21 @@ class DepositionPointsRepository @Inject constructor(
                 .onErrorReturn { DepositionPointsResponse(emptyList()) }
     }
 
-    private fun getDepositionPointsFromDb(): Single<List<DepositionPoint>> {
+    private fun getDepositionPointsFromDbSingle(): Single<List<DepositionPoint>> {
         return Single.defer {
             Single.just(depositionPointDao.getAll())
         }
                 .subscribeOn(appSchedulers.io())
     }
 
-    private fun getDepositionPartnersFromNetwork(): Single<DepositionPartnersResponse> {
+    private fun getDepositionPartnersFromDBSingle(): Single<List<DepositionPartnerEntity>> {
+        return Single.defer {
+            Single.just(depositionPartnersDao.getAll())
+        }
+                .subscribeOn(appSchedulers.io())
+    }
+
+    private fun getDepositionPartnersFromNetworkSingle(): Single<DepositionPartnersResponse> {
         return api.getDepositionPartners()
                 .subscribeOn(appSchedulers.io())
                 .onErrorReturn { DepositionPartnersResponse(emptyList()) }
