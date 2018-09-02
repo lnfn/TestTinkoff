@@ -19,7 +19,7 @@ class DepositionPointsListPresenter @Inject constructor(
     override fun onFirstViewAttach() {
         depositionPointsRepository.sourceObservable
                 .subscribe(
-                        { viewState.showCountItems(it.size) },
+                        { viewState.showCountItems(it) },
                         { Timber.e(it) }
                 )
                 .bindTo(disposable)

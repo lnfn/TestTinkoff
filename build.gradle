@@ -10,6 +10,7 @@ buildscript {
         playServicesVersion = '15.0.1'
         retrofitVersion = '2.4.0'
         ormliteVersion = '5.1'
+        glideVersion = '4.8.0'
     }
     repositories {
         google()

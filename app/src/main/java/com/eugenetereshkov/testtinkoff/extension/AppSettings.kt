@@ -6,6 +6,7 @@ import android.provider.Settings
 import android.support.annotation.StringRes
 import android.support.design.widget.Snackbar
 import android.support.v4.app.Fragment
+import android.util.DisplayMetrics
 import com.eugenetereshkov.testtinkoff.BuildConfig
 import com.eugenetereshkov.testtinkoff.R
 
@@ -27,3 +28,11 @@ private fun getSettingsIntent(): Intent = Intent().apply {
     data = Uri.fromParts("package", BuildConfig.APPLICATION_ID, null)
     flags = Intent.FLAG_ACTIVITY_NEW_TASK
 }
+
+fun Int.getDensityName(): String = when {
+    this <= DisplayMetrics.DENSITY_MEDIUM -> "mdpi"
+    this <= DisplayMetrics.DENSITY_HIGH -> "hdpi"
+    this <= DisplayMetrics.DENSITY_XHIGH -> "xhdpi"
+    else -> "xxhdpi"
+}
+

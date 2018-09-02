@@ -26,6 +26,9 @@ class DepositionPointAndPartner(
         val limitsWrapper: LimitsWrapper
 ) {
     companion object {
+
+        const val IMAGE_URL = "https://static.tinkoff.ru/icons/deposition-partners-v3/"
+
         fun joinDepositionPointsAndPartners(
                 points: List<DepositionPoint>,
                 partners: List<DepositionPartnerEntity>
