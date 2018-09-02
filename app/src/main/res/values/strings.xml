@@ -5,4 +5,9 @@
     <string name="settings">Настройки</string>
     <string name="open_Settings">Перейти в настройки</string>
     <string name="update_location">Обновление местоположения…</string>
+    <string name="deposition_point">Точка пополнения</string>
+    <string name="deposition_duration">Зачисление</string>
+    <string name="limitations">Ограничения</string>
+    <string name="conditions">Условия</string>
+    <string name="work_hours">Часы работы</string>
 </resources>

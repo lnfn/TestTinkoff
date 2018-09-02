@@ -1,9 +1,12 @@
 package com.eugenetereshkov.testtinkoff.entity
 
+import android.os.Parcelable
 import com.eugenetereshkov.testtinkoff.model.data.db.DepositionPartnerEntity
 import com.eugenetereshkov.testtinkoff.model.data.db.LimitsWrapper
+import kotlinx.android.parcel.Parcelize
 
 
+@Parcelize
 class DepositionPointAndPartner(
         val id: Int,
         val location: Location,
@@ -20,11 +23,12 @@ class DepositionPointAndPartner(
         val pointType: String,
         val externalPartnerId: String,
         val description: String,
+        val workHours: String,
         val moneyMin: Int,
         val moneyMax: Int,
         val hasPreferentialDeposition: Boolean,
         val limitsWrapper: LimitsWrapper
-) {
+) : Parcelable {
     companion object {
 
         const val IMAGE_URL = "https://static.tinkoff.ru/icons/deposition-partners-v3/"
@@ -52,6 +56,7 @@ class DepositionPointAndPartner(
                         pointType = partner.pointType,
                         externalPartnerId = partner.externalPartnerId,
                         description = partner.description,
+                        workHours = point.workHours,
                         moneyMin = partner.moneyMin,
                         moneyMax = partner.moneyMax,
                         hasPreferentialDeposition = partner.hasPreferentialDeposition,

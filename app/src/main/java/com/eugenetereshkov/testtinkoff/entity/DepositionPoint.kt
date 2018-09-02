@@ -16,6 +16,8 @@ class DepositionPoint {
     @DatabaseField(persisterClass = LocationPersister::class)
     val location: Location = Location(0.0, 0.0)
     @DatabaseField
+    val workHours: String = ""
+    @DatabaseField
     val addressInfo: String = ""
     @DatabaseField
     val fullAddress: String = ""

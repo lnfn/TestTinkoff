@@ -16,7 +16,8 @@ import kotlinx.android.synthetic.main.fragment_deposition_points_list.*
 import javax.inject.Inject
 
 
-class DepositionPointsListFragment : BaseFragment(), DepositionPointsListView {
+class DepositionPointsListFragment : BaseFragment(), DepositionPointsListView,
+        DepositionPointsAdapter.OnItemSelectListener {
 
     companion object {
         const val TAG = "deposition_points_list_fragment"
@@ -30,7 +31,8 @@ class DepositionPointsListFragment : BaseFragment(), DepositionPointsListView {
     @InjectPresenter
     lateinit var presenter: DepositionPointsListPresenter
 
-    private val adapter by lazy { DepositionPointsAdapter() }
+    private val adapter by lazy { DepositionPointsAdapter(this) }
+    private var clickListener: OnClickListener? = null
 
     @ProvidePresenter
     fun providePresenter() = presenter
@@ -38,6 +40,17 @@ class DepositionPointsListFragment : BaseFragment(), DepositionPointsListView {
     override fun onAttach(context: Context) {
         AndroidSupportInjection.inject(this)
         super.onAttach(context)
+
+        clickListener = when {
+            parentFragment is OnClickListener -> parentFragment as OnClickListener
+            activity is OnClickListener -> activity as OnClickListener
+            else -> null
+        }
+    }
+
+    override fun onDetach() {
+        clickListener = null
+        super.onDetach()
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
@@ -53,5 +66,13 @@ class DepositionPointsListFragment : BaseFragment(), DepositionPointsListView {
 
     override fun showCountItems(data: List<DepositionPointAndPartner>) {
         adapter.submitList(data)
+    }
+
+    override fun onSelect(data: DepositionPointAndPartner) {
+        clickListener?.showDepositionPointsDetails(data)
+    }
+
+    interface OnClickListener {
+        fun showDepositionPointsDetails(data: DepositionPointAndPartner)
     }
 }

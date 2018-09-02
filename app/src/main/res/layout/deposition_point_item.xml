@@ -11,12 +11,16 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
         android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
         android:ellipsize="end"
         android:maxLines="1"
         android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+        app:layout_constraintBottom_toTopOf="@+id/textViewAddressInfo"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toEndOf="@+id/imageView"
-        app:layout_constraintTop_toTopOf="@+id/imageView"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_chainStyle="packed"
         tools:text="TextView" />
 
     <ImageView
@@ -35,10 +39,12 @@
         android:id="@+id/textViewAddressInfo"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        tools:text="TextView"
+        android:layout_marginBottom="16dp"
         android:ellipsize="end"
-        android:maxLines="1"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="@+id/textViewPartnerName"
+        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="@+id/textViewPartnerName"
-        app:layout_constraintTop_toBottomOf="@+id/textViewPartnerName" />
+        app:layout_constraintTop_toBottomOf="@+id/textViewPartnerName"
+        tools:text="TextView" />
 </android.support.constraint.ConstraintLayout>

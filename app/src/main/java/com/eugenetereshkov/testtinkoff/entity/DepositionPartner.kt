@@ -12,6 +12,7 @@ class DepositionPartner(
         val hasLocations: Boolean,
         val isMomentary: Boolean,
         val depositionDuration: String,
+        val limitations: String,
         val pointType: String,
         val externalPartnerId: String,
         val description: String,
@@ -30,6 +31,7 @@ class DepositionPartner(
             hasLocations = partner.hasLocations
             isMomentary = partner.isMomentary
             depositionDuration = partner.depositionDuration
+            limitations = partner.limitations
             pointType = partner.pointType
             externalPartnerId = partner.externalPartnerId
             description = partner.description
