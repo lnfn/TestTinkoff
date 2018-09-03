@@ -86,11 +86,31 @@ class DepositionPointsMapFragment : BaseFragment(), OnMapReadyCallback, Depositi
             true
         }
     }
+    private val bottomSheetCallback by lazy {
+        object : BottomSheetBehavior.BottomSheetCallback() {
+            override fun onSlide(bottomSheet: View, slideOffset: Float) {
+            }
+
+            override fun onStateChanged(bottomSheet: View, newState: Int) {
+                if (newState == BottomSheetBehavior.STATE_EXPANDED) {
+                    val transitionY = -(bottomSheet.height).toFloat()
+                    imageButtonPlusZoom.translationY = transitionY
+                    imageButtonMinusZoom.translationY = transitionY
+                } else if (newState == BottomSheetBehavior.STATE_HIDDEN) {
+                    imageButtonPlusZoom.translationY = 0f
+                    imageButtonMinusZoom.translationY = 0f
+                }
+            }
+        }
+    }
     private val clusterItemClickListener by lazy {
         ClusterManager.OnClusterItemClickListener<DepositionPointAndPartner> { clusterItem ->
             presenter.lastSelectItem = clusterItem
-            bottomSheetBehavior.peekHeight = bottomSheet.top
-            bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+            bottomSheetBehavior.apply {
+                peekHeight = bottomSheet.top
+                state = BottomSheetBehavior.STATE_EXPANDED
+                setBottomSheetCallback(bottomSheetCallback)
+            }
 
             textViewPartnerName.text = clusterItem.name
 
