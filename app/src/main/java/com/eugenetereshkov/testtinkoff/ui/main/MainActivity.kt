@@ -9,7 +9,6 @@ import com.eugenetereshkov.testtinkoff.entity.DepositionPointAndPartner
 import com.eugenetereshkov.testtinkoff.presenter.main.MainPresenter
 import com.eugenetereshkov.testtinkoff.ui.depositionpointscontainer.DepositionPointsContainerFragment
 import com.eugenetereshkov.testtinkoff.ui.depositionpointsdetails.DepositionPointsDetailsFragment
-import com.eugenetereshkov.testtinkoff.ui.depositionpointslist.DepositionPointsListFragment
 import com.eugenetereshkov.testtinkoff.ui.global.BaseActivity
 import dagger.android.AndroidInjection
 import dagger.android.AndroidInjector
@@ -18,7 +17,7 @@ import dagger.android.support.HasSupportFragmentInjector
 import javax.inject.Inject
 
 
-class MainActivity : BaseActivity(), HasSupportFragmentInjector, DepositionPointsListFragment.OnClickListener, DepositionPointsDetailsFragment.OnClickListener {
+class MainActivity : BaseActivity(), HasSupportFragmentInjector, DepositionPointsDetailsFragment.OnClickListener {
 
     override val idResLayout: Int = R.layout.activity_main
 

@@ -9,6 +9,7 @@ import com.eugenetereshkov.testtinkoff.R
 import com.eugenetereshkov.testtinkoff.entity.DepositionPointAndPartner
 import com.eugenetereshkov.testtinkoff.presenter.depositionpointslist.DepositionPointsListPresenter
 import com.eugenetereshkov.testtinkoff.presenter.depositionpointslist.DepositionPointsListView
+import com.eugenetereshkov.testtinkoff.ui.depositionpointsdetails.DepositionPointsDetailsFragment
 import com.eugenetereshkov.testtinkoff.ui.global.BaseFragment
 import com.eugenetereshkov.testtinkoff.ui.global.SimpleDividerDecorator
 import dagger.android.support.AndroidSupportInjection
@@ -32,7 +33,7 @@ class DepositionPointsListFragment : BaseFragment(), DepositionPointsListView,
     lateinit var presenter: DepositionPointsListPresenter
 
     private val adapter by lazy { DepositionPointsAdapter(this) }
-    private var clickListener: OnClickListener? = null
+    private var clickListener: DepositionPointsDetailsFragment.OnClickListener? = null
 
     @ProvidePresenter
     fun providePresenter() = presenter
@@ -42,8 +43,8 @@ class DepositionPointsListFragment : BaseFragment(), DepositionPointsListView,
         super.onAttach(context)
 
         clickListener = when {
-            parentFragment is OnClickListener -> parentFragment as OnClickListener
-            activity is OnClickListener -> activity as OnClickListener
+            parentFragment is DepositionPointsDetailsFragment.OnClickListener -> parentFragment as DepositionPointsDetailsFragment.OnClickListener
+            activity is DepositionPointsDetailsFragment.OnClickListener -> activity as DepositionPointsDetailsFragment.OnClickListener
             else -> null
         }
     }
@@ -70,9 +71,5 @@ class DepositionPointsListFragment : BaseFragment(), DepositionPointsListView,
 
     override fun onSelect(data: DepositionPointAndPartner) {
         clickListener?.showDepositionPointsDetails(data)
-    }
-
-    interface OnClickListener {
-        fun showDepositionPointsDetails(data: DepositionPointAndPartner)
     }
 }

@@ -1,19 +1,15 @@
 package com.eugenetereshkov.testtinkoff.ui.depositionpointslist
 
-import android.graphics.Bitmap
-import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory
 import android.support.v7.recyclerview.extensions.ListAdapter
 import android.support.v7.util.DiffUtil
 import android.support.v7.widget.RecyclerView
 import android.view.View
 import android.view.ViewGroup
-import com.bumptech.glide.Glide
-import com.bumptech.glide.request.target.SimpleTarget
-import com.bumptech.glide.request.transition.Transition
 import com.eugenetereshkov.testtinkoff.R
 import com.eugenetereshkov.testtinkoff.entity.DepositionPointAndPartner
-import com.eugenetereshkov.testtinkoff.extension.getDensityName
+import com.eugenetereshkov.testtinkoff.extension.getDownloadImageUrl
 import com.eugenetereshkov.testtinkoff.extension.inflate
+import com.eugenetereshkov.testtinkoff.extension.loadRoundedImage
 import kotlinx.android.extensions.LayoutContainer
 import kotlinx.android.synthetic.main.deposition_point_item.*
 
@@ -51,20 +47,7 @@ class DepositionPointsAdapter(
                 text = item.fullAddress
             }
 
-            val imageUrl = "${DepositionPointAndPartner.IMAGE_URL}${itemView.context.resources.displayMetrics.densityDpi.getDensityName()}/${item.picture}"
-
-            Glide.with(itemView.context)
-                    .asBitmap()
-                    .load(imageUrl)
-                    .into(object : SimpleTarget<Bitmap>() {
-                        override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
-                            RoundedBitmapDrawableFactory.create(imageView.resources, resource).run {
-                                this.isCircular = true
-                                imageView.setImageDrawable(this)
-                            }
-                        }
-
-                    })
+            imageView.loadRoundedImage(item.picture.getDownloadImageUrl(itemView.context))
         }
     }
 

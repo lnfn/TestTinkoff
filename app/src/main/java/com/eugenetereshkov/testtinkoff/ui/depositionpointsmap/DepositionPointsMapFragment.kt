@@ -6,17 +6,22 @@ import android.content.Context
 import android.content.Intent
 import android.location.Location
 import android.os.Bundle
+import android.support.design.widget.BottomSheetBehavior
 import android.support.design.widget.Snackbar
 import android.view.View
+import android.widget.FrameLayout
 import com.arellomobile.mvp.presenter.InjectPresenter
 import com.arellomobile.mvp.presenter.ProvidePresenter
 import com.eugenetereshkov.testtinkoff.R
-import com.eugenetereshkov.testtinkoff.entity.DepositionPointClusterItem
+import com.eugenetereshkov.testtinkoff.entity.DepositionPointAndPartner
 import com.eugenetereshkov.testtinkoff.entity.TargetMapPosition
+import com.eugenetereshkov.testtinkoff.extension.getDownloadImageUrl
 import com.eugenetereshkov.testtinkoff.extension.getMapVisibleRadius
+import com.eugenetereshkov.testtinkoff.extension.loadRoundedImage
 import com.eugenetereshkov.testtinkoff.extension.showSettingsRequest
 import com.eugenetereshkov.testtinkoff.presenter.depositionpointsmap.DepositionPointsMapPresenter
 import com.eugenetereshkov.testtinkoff.presenter.depositionpointsmap.DepositionPointsMapView
+import com.eugenetereshkov.testtinkoff.ui.depositionpointsdetails.DepositionPointsDetailsFragment
 import com.eugenetereshkov.testtinkoff.ui.global.BaseFragment
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -25,7 +30,9 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.clustering.ClusterManager
 import dagger.android.support.AndroidSupportInjection
+import kotlinx.android.synthetic.main.deposition_point_item.*
 import kotlinx.android.synthetic.main.fragment_deposition_points_map.*
+import kotlinx.android.synthetic.main.widget_map_bottomsheet.*
 import permissions.dispatcher.NeedsPermission
 import permissions.dispatcher.OnNeverAskAgain
 import permissions.dispatcher.OnPermissionDenied
@@ -54,7 +61,10 @@ class DepositionPointsMapFragment : BaseFragment(), OnMapReadyCallback, Depositi
     fun providePresenter() = presenter
 
     private lateinit var googleMap: GoogleMap
+    private lateinit var bottomSheetBehavior: BottomSheetBehavior<FrameLayout>
+    private var clickListener: DepositionPointsDetailsFragment.OnClickListener? = null
     private val cameraIdleListener: () -> Unit = {
+        bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
         val currentLatLang = googleMap.cameraPosition.target
         val targetMapPosition = TargetMapPosition(
                 latitude = currentLatLang.latitude,
@@ -66,7 +76,7 @@ class DepositionPointsMapFragment : BaseFragment(), OnMapReadyCallback, Depositi
         presenter.getDepositionPoints(targetMapPosition)
     }
     private val clusterClickListener by lazy {
-        ClusterManager.OnClusterClickListener<DepositionPointClusterItem> { cluster ->
+        ClusterManager.OnClusterClickListener<DepositionPointAndPartner> { cluster ->
             val currentZoom = googleMap.cameraPosition.zoom
 
             if (currentZoom < googleMap.maxZoomLevel) {
@@ -77,12 +87,24 @@ class DepositionPointsMapFragment : BaseFragment(), OnMapReadyCallback, Depositi
         }
     }
     private val clusterItemClickListener by lazy {
-        ClusterManager.OnClusterItemClickListener<DepositionPointClusterItem> { clusterItem ->
+        ClusterManager.OnClusterItemClickListener<DepositionPointAndPartner> { clusterItem ->
+            presenter.lastSelectItem = clusterItem
+            bottomSheetBehavior.peekHeight = bottomSheet.top
+            bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+
+            textViewPartnerName.text = clusterItem.name
+
+            textViewAddressInfo.apply {
+                maxLines = 1
+                text = clusterItem.fullAddress
+            }
+
+            imageView.loadRoundedImage(clusterItem.picture.getDownloadImageUrl(requireContext()))
             true
         }
     }
     private val clusterManager by lazy {
-        MapClusterManager<DepositionPointClusterItem>(requireContext(), googleMap, cameraIdleListener).apply {
+        MapClusterManager<DepositionPointAndPartner>(requireContext(), googleMap, cameraIdleListener).apply {
             renderer = DepositionPointMarkerRender(requireContext(), googleMap, this)
             setOnClusterClickListener(clusterClickListener)
             setOnClusterItemClickListener(clusterItemClickListener)
@@ -97,6 +119,7 @@ class DepositionPointsMapFragment : BaseFragment(), OnMapReadyCallback, Depositi
                 imageButtonFindLocation.id -> findCurrentLocationWithPermissionCheck()
                 imageButtonPlusZoom.id -> googleMap.animateCamera(CameraUpdateFactory.zoomIn())
                 imageButtonMinusZoom.id -> googleMap.animateCamera(CameraUpdateFactory.zoomOut())
+                bottomSheet.id -> clickListener?.showDepositionPointsDetails(presenter.lastSelectItem)
             }
         }
     }
@@ -104,6 +127,17 @@ class DepositionPointsMapFragment : BaseFragment(), OnMapReadyCallback, Depositi
     override fun onAttach(context: Context) {
         AndroidSupportInjection.inject(this)
         super.onAttach(context)
+
+        clickListener = when {
+            parentFragment is DepositionPointsDetailsFragment.OnClickListener -> parentFragment as DepositionPointsDetailsFragment.OnClickListener
+            activity is DepositionPointsDetailsFragment.OnClickListener -> activity as DepositionPointsDetailsFragment.OnClickListener
+            else -> null
+        }
+    }
+
+    override fun onDetach() {
+        clickListener = null
+        super.onDetach()
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
@@ -115,6 +149,12 @@ class DepositionPointsMapFragment : BaseFragment(), OnMapReadyCallback, Depositi
         imageButtonFindLocation.setOnClickListener(onClickListener)
         imageButtonPlusZoom.setOnClickListener(onClickListener)
         imageButtonMinusZoom.setOnClickListener(onClickListener)
+        bottomSheet.setOnClickListener(onClickListener)
+
+        bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet)
+        bottomSheetBehavior.isHideable = true
+        bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
+
     }
 
     override fun onStart() {
@@ -153,10 +193,12 @@ class DepositionPointsMapFragment : BaseFragment(), OnMapReadyCallback, Depositi
         )
     }
 
-    override fun showMarkers(data: List<DepositionPointClusterItem>) {
-        clusterManager.clearItems()
-        clusterManager.addItems(data)
-        clusterManager.cluster()
+    override fun showMarkers(data: List<DepositionPointAndPartner>) {
+        if (::googleMap.isInitialized) {
+            clusterManager.clearItems()
+            clusterManager.addItems(data)
+            clusterManager.cluster()
+        }
     }
 
     override fun openGpsSettings() {

@@ -32,6 +32,7 @@ class DepositionPointsMapPresenter @Inject constructor(
         longitude = appPreferences.lastMapPosition.longitude
     }
     private val disposable = CompositeDisposable()
+    lateinit var lastSelectItem: DepositionPointAndPartner
 
     override fun onDestroy() {
         disposable.clear()
@@ -66,7 +67,7 @@ class DepositionPointsMapPresenter @Inject constructor(
 
         depositionPointsRepository.sourceObservable
                 .subscribe(
-                        { viewState.showMarkers(it.map(this::convertToClusterItem)) },
+                        { viewState.showMarkers(it) },
                         { Timber.e(it) }
                 )
                 .bindTo(disposable)

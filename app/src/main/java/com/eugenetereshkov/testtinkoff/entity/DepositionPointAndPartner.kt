@@ -3,6 +3,8 @@ package com.eugenetereshkov.testtinkoff.entity
 import android.os.Parcelable
 import com.eugenetereshkov.testtinkoff.model.data.db.DepositionPartnerEntity
 import com.eugenetereshkov.testtinkoff.model.data.db.LimitsWrapper
+import com.google.android.gms.maps.model.LatLng
+import com.google.maps.android.clustering.ClusterItem
 import kotlinx.android.parcel.Parcelize
 
 
@@ -28,7 +30,7 @@ class DepositionPointAndPartner(
         val moneyMax: Int,
         val hasPreferentialDeposition: Boolean,
         val limitsWrapper: LimitsWrapper
-) : Parcelable {
+) : Parcelable, ClusterItem {
     companion object {
 
         const val IMAGE_URL = "https://static.tinkoff.ru/icons/deposition-partners-v3/"
@@ -65,4 +67,10 @@ class DepositionPointAndPartner(
             }
         }
     }
+
+    override fun getSnippet(): String = ""
+
+    override fun getTitle(): String = ""
+
+    override fun getPosition(): LatLng = LatLng(location.latitude, location.longitude)
 }
