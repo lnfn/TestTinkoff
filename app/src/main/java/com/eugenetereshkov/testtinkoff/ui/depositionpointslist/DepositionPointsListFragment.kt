@@ -3,6 +3,7 @@ package com.eugenetereshkov.testtinkoff.ui.depositionpointslist
 import android.content.Context
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
+import androidx.core.widget.toast
 import com.arellomobile.mvp.presenter.InjectPresenter
 import com.arellomobile.mvp.presenter.ProvidePresenter
 import com.eugenetereshkov.testtinkoff.R
@@ -71,5 +72,9 @@ class DepositionPointsListFragment : BaseFragment(), DepositionPointsListView,
 
     override fun onSelect(data: DepositionPointAndPartner) {
         clickListener?.showDepositionPointsDetails(data)
+    }
+
+    override fun showError(error: String) {
+        context?.toast(error)
     }
 }

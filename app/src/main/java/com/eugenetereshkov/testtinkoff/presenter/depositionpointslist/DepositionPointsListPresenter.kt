@@ -23,6 +23,13 @@ class DepositionPointsListPresenter @Inject constructor(
                         { Timber.e(it) }
                 )
                 .bindTo(disposable)
+
+        depositionPointsRepository.sourceErrorObservable
+                .subscribe(
+                        { error -> error.message?.let { viewState.showError(it) } },
+                        { Timber.e(it) }
+                )
+                .bindTo(disposable)
     }
 
     override fun onDestroy() {

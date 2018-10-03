@@ -4,23 +4,29 @@ import android.content.Context
 import android.os.Bundle
 import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
+import com.arellomobile.mvp.presenter.InjectPresenter
+import com.arellomobile.mvp.presenter.ProvidePresenter
 import com.eugenetereshkov.testtinkoff.R
 import com.eugenetereshkov.testtinkoff.entity.DepositionPointAndPartner
 import com.eugenetereshkov.testtinkoff.extension.fromHtml
 import com.eugenetereshkov.testtinkoff.extension.getDownloadImageUrl
 import com.eugenetereshkov.testtinkoff.extension.loadRoundedImage
+import com.eugenetereshkov.testtinkoff.presenter.depositionpointsdetails.DepositionPointDetailsPresenter
+import com.eugenetereshkov.testtinkoff.presenter.depositionpointsdetails.DepositionPointDetailsView
 import com.eugenetereshkov.testtinkoff.ui.global.BaseFragment
+import dagger.android.support.AndroidSupportInjection
 import kotlinx.android.synthetic.main.deposition_point_details_layout.*
 import kotlinx.android.synthetic.main.deposition_point_item.*
 import kotlinx.android.synthetic.main.fragment_deposition_points_details.*
+import javax.inject.Inject
 
 
-class DepositionPointsDetailsFragment : BaseFragment() {
+class DepositionPointsDetailsFragment : BaseFragment(), DepositionPointDetailsView {
 
     companion object {
         const val TAG = "deposition_points_details_fragment"
 
-        private const val DATA = "data"
+        const val DATA = "data"
 
         fun newInstance(data: DepositionPointAndPartner) = DepositionPointsDetailsFragment().apply {
             arguments = bundleOf(DATA to data)
@@ -29,8 +35,14 @@ class DepositionPointsDetailsFragment : BaseFragment() {
 
     override val idResLayout: Int = R.layout.fragment_deposition_points_details
 
+    @Inject
+    @InjectPresenter
+    lateinit var presenter: DepositionPointDetailsPresenter
+
+    @ProvidePresenter
+    fun providePresenter() = presenter
+
     private var clickListener: OnClickListener? = null
-    private val data: DepositionPointAndPartner by lazy { arguments?.getParcelable(DATA) as DepositionPointAndPartner }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
@@ -40,7 +52,25 @@ class DepositionPointsDetailsFragment : BaseFragment() {
             setNavigationIcon(R.drawable.ic_close_white)
             setNavigationOnClickListener { clickListener?.hideDepositionPointsDetails() }
         }
+    }
 
+    override fun onAttach(context: Context?) {
+        AndroidSupportInjection.inject(this)
+        super.onAttach(context)
+
+        clickListener = when {
+            parentFragment is OnClickListener -> parentFragment as OnClickListener
+            activity is OnClickListener -> activity as OnClickListener
+            else -> null
+        }
+    }
+
+    override fun onDestroy() {
+        clickListener = null
+        super.onDestroy()
+    }
+
+    override fun showData(data: DepositionPointAndPartner) {
         textViewPartnerName.text = data.name
         textViewAddressInfo.text = data.fullAddress
         textViewDepositionDuration.text = data.depositionDuration.fromHtml()
@@ -54,21 +84,6 @@ class DepositionPointsDetailsFragment : BaseFragment() {
         }
 
         imageView.loadRoundedImage(data.picture.getDownloadImageUrl(requireContext()))
-    }
-
-    override fun onAttach(context: Context?) {
-        super.onAttach(context)
-
-        clickListener = when {
-            parentFragment is OnClickListener -> parentFragment as OnClickListener
-            activity is OnClickListener -> activity as OnClickListener
-            else -> null
-        }
-    }
-
-    override fun onDestroy() {
-        clickListener = null
-        super.onDestroy()
     }
 
     interface OnClickListener {

@@ -4,9 +4,9 @@
     android:id="@+id/bottomSheet"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:background="@color/white"
     app:behavior_hideable="false"
-    app:layout_behavior="@string/bottom_sheet_behavior"
-    android:background="@color/white">
+    app:layout_behavior="@string/bottom_sheet_behavior">
 
     <include layout="@layout/deposition_point_item" />
 </FrameLayout>

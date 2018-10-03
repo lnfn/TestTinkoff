@@ -41,11 +41,11 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="32dp"
+                android:text="@string/deposition_duration"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="@+id/guidelineStart"
-                app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/guidelineEnd"
-                android:text="@string/deposition_duration" />
+                app:layout_constraintStart_toStartOf="@+id/guidelineStart"
+                app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
                 android:id="@+id/textViewDepositionDuration"
@@ -63,11 +63,11 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="32dp"
+                android:text="@string/limitations"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="@+id/guidelineStart"
-                app:layout_constraintTop_toBottomOf="@+id/textViewDepositionDuration"
                 app:layout_constraintEnd_toStartOf="@+id/guidelineEnd"
-                android:text="@string/limitations" />
+                app:layout_constraintStart_toStartOf="@+id/guidelineStart"
+                app:layout_constraintTop_toBottomOf="@+id/textViewDepositionDuration" />
 
             <TextView
                 android:id="@+id/textViewLimitations"
@@ -85,11 +85,11 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="32dp"
+                android:text="@string/conditions"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="@+id/guidelineStart"
-                app:layout_constraintTop_toBottomOf="@+id/textViewLimitations"
                 app:layout_constraintEnd_toStartOf="@+id/guidelineEnd"
-                android:text="@string/conditions" />
+                app:layout_constraintStart_toStartOf="@+id/guidelineStart"
+                app:layout_constraintTop_toBottomOf="@+id/textViewLimitations" />
 
             <TextView
                 android:id="@+id/textViewDescription"
@@ -107,11 +107,11 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="32dp"
+                android:text="@string/work_hours"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="@+id/guidelineStart"
-                app:layout_constraintTop_toBottomOf="@+id/textViewDescription"
                 app:layout_constraintEnd_toStartOf="@+id/guidelineEnd"
-                android:text="@string/work_hours" />
+                app:layout_constraintStart_toStartOf="@+id/guidelineStart"
+                app:layout_constraintTop_toBottomOf="@+id/textViewDescription" />
 
             <TextView
                 android:id="@+id/textViewWorkHours"

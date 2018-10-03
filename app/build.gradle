@@ -47,7 +47,6 @@ dependencies {
     kapt "com.github.bumptech.glide:compiler:$glideVersion"
 
     // Arch
-    implementation 'ru.terrakok.cicerone:cicerone:3.0.0'
     implementation "com.arello-mobile:moxy:$moxyVersion"
     implementation "com.arello-mobile:moxy-app-compat:$moxyVersion"
     kapt "com.arello-mobile:moxy-compiler:$moxyVersion"
@@ -62,7 +61,7 @@ dependencies {
     implementation "com.squareup.retrofit2:retrofit:$retrofitVersion"
     implementation "com.squareup.retrofit2:adapter-rxjava2:$retrofitVersion"
     implementation "com.squareup.retrofit2:converter-gson:$retrofitVersion"
-    implementation 'com.squareup.okhttp3:logging-interceptor:3.10.0'
+    implementation 'com.squareup.okhttp3:logging-interceptor:3.11.0'
 
     // Async
     implementation 'io.reactivex.rxjava2:rxjava:2.2.1'
